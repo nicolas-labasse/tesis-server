@@ -44,11 +44,13 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/recorrido/', include(router_recorrido.urls), {'basename': 'recorrido'}),
+    path('api/recorrido/', include('recorrido.api.router'), {'basename': 'estado-recorrido'}),
     path('api/puntoInteres/', include(router_pInteres.urls), {'basename': 'puntoInteres'}),
     path('api/usuario/', include(router_usuario.urls), {'basename': 'usuario'}),
     path('api/usuario/', include('usuario.api.router'), {'basename': 'usuario-favorito'}),
     path('api/usuario/', include('usuario.api.router'), {'basename': 'editar-imagen-usuario'}),
     path('api/usuario/', include('usuario.api.router'), {'basename': 'editar-usuario-nombre'}),
+    path('api/usuario/', include('usuario.api.router'), {'basename': 'estado-usuario'}),
     path('api/transaccion/', include(router_transaccion.urls), {'basename': 'transaccion'}),
     path('api/calificacion/', include(router_calificacion.urls), {'basename': 'calificacion'}),
     

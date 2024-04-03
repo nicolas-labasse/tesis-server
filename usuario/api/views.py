@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from usuario.models import Usuario
-from usuario.api.serializers import UsuarioSerializer, UsuarioFavoritoSerializer, EditarImagenUsuarioSerializer, EditarUsuarioNombreSerializer
+from usuario.api.serializers import UsuarioSerializer, UsuarioFavoritoSerializer, EditarImagenUsuarioSerializer, EditarUsuarioNombreSerializer, EstadoUsuarioSerializer
 
 """class UsuarioApiViewSet(ModelViewSet):
     serializer_class = UsuarioSerializer
@@ -32,6 +32,7 @@ class UsuarioApiViewSet(ModelViewSet):
         except Exception as e:
             print('Exception:', e)
             return Response({'error': 'Error interno del servidor no entre al try'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class UsuarioFavoritoAPIView(ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioFavoritoSerializer
@@ -54,15 +55,16 @@ class EditarImagenUsuario(ModelViewSet):
     def update(self, request, *args, **kwargs):
         try:
             usuario = self.get_object()
-            
-            imagen_url = request.data.get('imagen_update', '')
-            request.data['imagen_url'] = f'images/{imagen_url}'
+            data = request.data
+                
+            imagen_url = data.get('imagen_update', '')
 
-            serializer = self.get_serializer(usuario, data=request.data, partial=True)
+            data['imagen_url'] = imagen_url
+
+            serializer = self.get_serializer(usuario, data=data, partial=True)
             serializer.is_valid(raise_exception=True)
-            
-            usuario.imagen = request.data.get('imagen_url', usuario.imagen)
 
+            usuario.imagen = data.get('imagen_url', usuario.imagen)
             self.perform_update(serializer)
 
             return Response(serializer.data)
@@ -90,5 +92,21 @@ class EditarUsuarioNombre(ModelViewSet):
             return Response({'error': 'Error interno del servidor'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
+class EstadoUsuario(ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = EstadoUsuarioSerializer
+
+    def update(self, request, *args, **kwargs):
+        try:
+            usuario = self.get_object()
+            data = request.data
+            data['activo'] = False if usuario.activo else True
+            serializer = self.get_serializer(usuario, data=data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        except Exception as e:
+            print('Exception:', e)
+            return Response({'error': 'Error interno del servidor'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

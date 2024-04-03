@@ -9,6 +9,7 @@ class Usuario(models.Model):
     imagen = models.ImageField(upload_to='images', null=True, blank=True)
     recorridoFavorito = models.ForeignKey(Recorrido, on_delete=models.CASCADE, related_name='recorridoFavorito', null=True, blank=True)
     ultimosRecorridos = models.ForeignKey(Recorrido, related_name='ultimosRecorridos', blank=True, null=True, on_delete=models.CASCADE)
+    activo = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nombre

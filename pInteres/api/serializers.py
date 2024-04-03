@@ -5,6 +5,9 @@ from pInteres.models import PuntoInteres
 class PuntoInteresSerializer(ModelSerializer):
     class Meta:
         model = PuntoInteres
-        fields = '__all__'
+        fields = ('id', 'nombre', 'modelo', 'latitud', 'longitud', 'imagen', 'activo')
 
-
+class EstadoPuntoInteresSerializer(ModelSerializer):
+    class Meta:
+        model = PuntoInteres
+        fields = ['activo']

@@ -5,5 +5,5 @@ from .models import PuntoInteres
 # Register your models here.
 @admin.register(PuntoInteres)
 class PuntoIteresAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'latitud', 'longitud', 'imagen')
+    list_display = ('nombre', 'latitud', 'longitud', 'imagen', 'activo')
     search_fields = ('nombre', 'latitud', 'longitud')

@@ -8,5 +8,9 @@ class RecorridoSerializer(ModelSerializer):
     class Meta:
         model = Recorrido
         fields = ('id', 'nombre', 'descripcion', 'duracion', 'puntoInteres', 'activo')
-    
-    
+
+
+class EstadoRecorridoSerializer(ModelSerializer):
+    class Meta:
+        model = Recorrido
+        fields = ['activo']

@@ -4,6 +4,7 @@ from recorrido.models import Recorrido
 from recorrido.api.serializers import RecorridoSerializer, EstadoRecorridoSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from math import radians, sin, cos, sqrt, atan2
 
 
 class RecorridoApiViewSet(ModelViewSet):
@@ -87,4 +88,77 @@ class RecorridoEstado(ModelViewSet):
         except Exception as e:
             print('Exception:', e)
             return Response({'error': 'Error interno del servidor'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+"""class RecorridoUbicacion(ModelViewSet):
+    queryset = Recorrido.objects.all()
+    serializer_class = RecorridoSerializer
+
+    def get_queryset(self):
+        latitud_str = self.request.query_params.get('latitud')
+        longitud_str = self.request.query_params.get('longitud')
+
+        if latitud_str is not None and longitud_str is not None:
+            latitud = float(latitud_str)
+            longitud = float(longitud_str)
+
+            recorridos_cercanos = Recorrido.objects.filter(
+                puntoInteres__latitud__range=(latitud - 0.1, latitud + 0.1),
+                puntoInteres__longitud__range=(longitud - 0.1, longitud + 0.1)
+            )[:5]
+            
+            return recorridos_cercanos
+
+        return Recorrido.objects.none()"""
+
+class RecorridoUbicacion(ModelViewSet):
+    queryset = Recorrido.objects.all()
+    serializer_class = RecorridoSerializer
+
+    def get_queryset(self):
+        latitud_str = self.request.query_params.get('latitud')
+        longitud_str = self.request.query_params.get('longitud')
+
+        if latitud_str is not None and longitud_str is not None:
+            latitud = float(latitud_str)
+            longitud = float(longitud_str)
+
+            recorridos = Recorrido.objects.all()
+            recorridos_cercanos = []
+
+            for recorrido in recorridos:
+                punto_cercano_encontrado = False
+                for punto_interes in recorrido.puntoInteres.all():
+                    distancia = haversine(latitud, longitud, punto_interes.latitud, punto_interes.longitud)
+                    if distancia <= 6:
+                        punto_cercano_encontrado = True
+                        break  
+                if punto_cercano_encontrado:
+                    recorridos_cercanos.append(recorrido)
+                    
+
+            return recorridos_cercanos[:5]
+
+        return Recorrido.objects.none()
+
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371.0
+
+    lat1_rad = radians(lat1)
+    lon1_rad = radians(lon1)
+    lat2_rad = radians(lat2)
+    lon2_rad = radians(lon2)
+
+    dlat = lat2_rad - lat1_rad
+    dlon = lon2_rad - lon1_rad
+
+    a = sin(dlat / 2)**2 + cos(lat1_rad) * cos(lat2_rad) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    distancia = R * c
+    return distancia
+
+
+
+
 

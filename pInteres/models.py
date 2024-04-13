@@ -3,7 +3,7 @@ from django.db import models
 
 class PuntoInteres(models.Model):
     nombre = models.CharField(max_length=200)
-    modelo = models.CharField(max_length=200, null=True, blank=True)
+    modelo = models.FileField(upload_to='modelos', null=True, blank=True)
     latitud = models.FloatField()
     longitud = models.FloatField()
     imagen = models.ImageField(upload_to='images', null=True, blank=True)

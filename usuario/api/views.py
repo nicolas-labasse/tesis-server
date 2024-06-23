@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from usuario.models import Usuario
 from usuario.api.serializers import UsuarioSerializer, UsuarioFavoritoSerializer, EditarImagenUsuarioSerializer, EditarUsuarioNombreSerializer, EstadoUsuarioSerializer
-from django.views.decorators.csrf import csrf_exempt
+
 
 """class UsuarioApiViewSet(ModelViewSet):
     serializer_class = UsuarioSerializer
@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)"""
 
-@csrf_exempt
+@
 class UsuarioApiViewSet(ModelViewSet):
     serializer_class = UsuarioSerializer
     queryset = Usuario.objects.all()

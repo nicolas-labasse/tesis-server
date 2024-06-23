@@ -16,7 +16,7 @@ from usuario.api.serializers import UsuarioSerializer, UsuarioFavoritoSerializer
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)"""
-
+@csrf_exempt
 class UsuarioApiViewSet(ModelViewSet):
     serializer_class = UsuarioSerializer
     queryset = Usuario.objects.all()

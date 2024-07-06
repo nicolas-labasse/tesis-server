@@ -5,6 +5,7 @@ from usuario.models import Usuario
 from usuario.api.serializers import UsuarioSerializer, UsuarioFavoritoSerializer, EditarImagenUsuarioSerializer, EditarUsuarioNombreSerializer, EstadoUsuarioSerializer
 import requests
 from django.core.files.base import ContentFile
+import mimetypes
 
 """class UsuarioApiViewSet(ModelViewSet):
     serializer_class = UsuarioSerializer
@@ -30,25 +31,34 @@ class UsuarioApiViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            data = request.data.copy() 
-            image_field = data.get('imagen')
+            data = request.data.copy()  # Make a mutable copy of the request data
+            image_url = data.get('imagen')  # Assuming 'imagen' is the field name for the image URL
 
-            if image_field and isinstance(image_field, str):
+            if image_url and isinstance(image_url, str):  # Check if the image field is a URL (string)
+                print(f'Debug: image_url is a string: {image_url}')
                 try:
-                    response = requests.get(image_field)
-                    response.raise_for_status()
-                    file_name = image_field.split('/')[-1]
+                    response = requests.get(image_url)
+                    response.raise_for_status()  # Raise an error for bad status codes
+                    content_type = response.headers['Content-Type']
+                    extension = mimetypes.guess_extension(content_type)
+                    if not extension:
+                        extension = ".png"  # Default extension if none can be guessed
+                    file_name = image_url.split('/')[-1].split('?')[0]
+                    if not file_name.endswith(extension):
+                        file_name += extension
                     data['imagen'] = ContentFile(response.content, file_name)
+                    print(f'Debug: Image downloaded and content file created: {file_name}')
                 except requests.RequestException as e:
+                    print(f'Debug: Error downloading the image: {e}')
                     return Response({'error': f'Error al descargar la imagen: {e}'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except Exception as e:
-            print('Exception:', e)
+            print(f'Debug: Exception in create method: {e}')
             return Response({'error': 'Error interno del servidor'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class UsuarioFavoritoAPIView(ModelViewSet):

@@ -3,23 +3,10 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from usuario.models import Usuario
 from usuario.api.serializers import UsuarioSerializer, UsuarioFavoritoSerializer, EditarImagenUsuarioSerializer, EditarUsuarioNombreSerializer, EstadoUsuarioSerializer
-
+import requests
+from django.core.files.base import ContentFile
 
 """class UsuarioApiViewSet(ModelViewSet):
-    serializer_class = UsuarioSerializer
-    queryset = Usuario.objects.all()
-
-    def create(self, request, *args, **kwargs):
-        data = request.data
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)"""
-
-
-class UsuarioApiViewSet(ModelViewSet):
     serializer_class = UsuarioSerializer
     queryset = Usuario.objects.all()
 
@@ -33,7 +20,36 @@ class UsuarioApiViewSet(ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except Exception as e:
             print('Exception:', e)
-            return Response({'error': 'Error interno del servidor no entre al try'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Error interno del servidor no entre al try'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)"""
+
+
+
+class UsuarioApiViewSet(ModelViewSet):
+    serializer_class = UsuarioSerializer
+    queryset = Usuario.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            data = request.data.copy() 
+            image_field = data.get('imagen')
+
+            if image_field and isinstance(image_field, str):
+                try:
+                    response = requests.get(image_field)
+                    response.raise_for_status()
+                    file_name = image_field.split('/')[-1]
+                    data['imagen'] = ContentFile(response.content, file_name)
+                except requests.RequestException as e:
+                    return Response({'error': f'Error al descargar la imagen: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        except Exception as e:
+            print('Exception:', e)
+            return Response({'error': 'Error interno del servidor'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class UsuarioFavoritoAPIView(ModelViewSet):
     queryset = Usuario.objects.all()
